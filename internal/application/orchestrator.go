@@ -49,9 +49,9 @@ func ConfigFromEnv() *Config {
 	}
 }
 
-type Orchestratorr struct {
+type Orchestrator struct {
 	Config      *Config
-	exprStore   map[string]*Expressions
+	exprStore   map[string]*Expression
 	taskStore   map[string]*Task
 	taskQueue   []*Task
 	mu          sync.Mutex
@@ -59,16 +59,16 @@ type Orchestratorr struct {
 	taskCounter int64
 }
 
-func NewOrchestrator() *Orchestratorr {
-	return &Orchestratorr{
+func NewOrchestrator() *Orchestrator {
+	return &Orchestrator{
 		Config:    ConfigFromEnv(),
-		exprStore: make(map[string]*Expressions),
+		exprStore: make(map[string]*Expression),
 		taskStore: make(map[string]*Task),
 		taskQueue: make([]*Task, 0),
 	}
 }
 
-type Expressions struct {
+type Expression struct {
 	ID     string   `json:"id"`
 	Expr   string   `json:"expression"`
 	Status string   `json:"status"`
@@ -86,7 +86,7 @@ type Task struct {
 	Node          *ASTNode `json:"-"`
 }
 
-func (o *Orchestratorr) calculateHandler(w http.ResponseWriter, r *http.Request) {
+func (o *Orchestrator) CalculateHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, `{"error":"Wrong Method"}`, http.StatusMethodNotAllowed)
 		return
@@ -107,7 +107,7 @@ func (o *Orchestratorr) calculateHandler(w http.ResponseWriter, r *http.Request)
 	o.mu.Lock()
 	o.exprCounter++
 	exprID := fmt.Sprintf("%d", o.exprCounter)
-	expr := &Expressions{
+	expr := &Expression{
 		ID:     exprID,
 		Expr:   req.Expression,
 		Status: "pending",
@@ -122,14 +122,14 @@ func (o *Orchestratorr) calculateHandler(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(map[string]string{"id": exprID})
 }
 
-func (o *Orchestratorr) expressionsHandler(w http.ResponseWriter, r *http.Request) {
+func (o *Orchestrator) expressionsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, `{"error":"Wrong Method"}`, http.StatusMethodNotAllowed)
 		return
 	}
 	o.mu.Lock()
 	defer o.mu.Unlock()
-	exprs := make([]*Expressions, 0, len(o.exprStore))
+	exprs := make([]*Expression, 0, len(o.exprStore))
 	for _, expr := range o.exprStore {
 		if expr.AST != nil && expr.AST.IsLeaf {
 			expr.Status = "completed"
@@ -141,7 +141,7 @@ func (o *Orchestratorr) expressionsHandler(w http.ResponseWriter, r *http.Reques
 	json.NewEncoder(w).Encode(map[string]interface{}{"expressions": exprs})
 }
 
-func (o *Orchestratorr) expressionByIDHandler(w http.ResponseWriter, r *http.Request) {
+func (o *Orchestrator) expressionByIDHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, `{"error":"Wrong Method"}`, http.StatusMethodNotAllowed)
 		return
@@ -162,7 +162,7 @@ func (o *Orchestratorr) expressionByIDHandler(w http.ResponseWriter, r *http.Req
 	json.NewEncoder(w).Encode(map[string]interface{}{"expression": expr})
 }
 
-func (o *Orchestratorr) getTaskHandler(w http.ResponseWriter, r *http.Request) {
+func (o *Orchestrator) getTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, `{"error":"Wrong Method"}`, http.StatusMethodNotAllowed)
 		return
@@ -182,7 +182,7 @@ func (o *Orchestratorr) getTaskHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{"task": task})
 }
 
-func (o *Orchestratorr) postTaskHandler(w http.ResponseWriter, r *http.Request) {
+func (o *Orchestrator) postTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, `{"error":"Wrong Method"}`, http.StatusMethodNotAllowed)
 		return
@@ -218,7 +218,7 @@ func (o *Orchestratorr) postTaskHandler(w http.ResponseWriter, r *http.Request) 
 	w.Write([]byte(`{"status":"result accepted"}`))
 }
 
-func (o *Orchestratorr) scheduleTasks(expr *Expressions) {
+func (o *Orchestrator) scheduleTasks(expr *Expression) {
 	var traverse func(node *ASTNode)
 	traverse = func(node *ASTNode) {
 		if node == nil || node.IsLeaf {
@@ -261,9 +261,9 @@ func (o *Orchestratorr) scheduleTasks(expr *Expressions) {
 	traverse(expr.AST)
 }
 
-func (o *Orchestratorr) RunServer() error {
+func (o *Orchestrator) RunServer() error {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/v1/calculate", o.calculateHandler)
+	mux.HandleFunc("/api/v1/calculate", o.CalculateHandler)
 	mux.HandleFunc("/api/v1/expressions", o.expressionsHandler)
 	mux.HandleFunc("/api/v1/expressions/", o.expressionByIDHandler)
 	mux.HandleFunc("/internal/task", func(w http.ResponseWriter, r *http.Request) {

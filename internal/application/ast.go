@@ -116,7 +116,12 @@ func (p *parser) parseFactor() (*ASTNode, error) {
 		return node, nil
 	}
 	start := p.pos
-	if ch == '+' || ch == '-' {
+	if ch == '+' {
+		if p.pos > 0 && p.input[p.pos-1] != '(' {
+			return nil, fmt.Errorf("unexpected unary plus at position %d", p.pos)
+		}
+		p.get()
+	} else if ch == '-' {
 		p.get()
 	}
 	for {
