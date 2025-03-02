@@ -24,44 +24,60 @@ CalcGo - это система распределенных вычислений
 - Golang >= 1.20
 - Docker (опционально, для контейнеризированного развертывания)
 
-### Запуск вручную
+### Запуск 
 
-1. Клонируйте репозиторий:
+## 1. Клонируйте репозиторий:
 
    ```sh
    git clone https://github.com/uncomonq/calc_go.git
    cd calc_go
    ```
 
-2. Запустите оркестратор:
+## 2. Запуск орекстратора:
+### Linux / macOS (bash)
+```sh 
+# Установка времени операций (в миллисекундах)
+export TIME_ADDITION_MS=200
+export TIME_SUBTRACTION_MS=200
+export TIME_MULTIPLICATIONS_MS=300
+export TIME_DIVISIONS_MS=400
 
-   ```sh
-   go run cmd/orchestrator/main.go
-   ```
+# Запуск оркестратора
+go run ./cmd/orchestrator/main.go
+```
 
-3. Запустите вычислительный агент:
+### Windows (PowerShell)
+```sh
+# Установка времени операций (в миллисекундах)
+$env:TIME_ADDITION_MS = "200"
+$env:TIME_SUBTRACTION_MS = "200"
+$env:TIME_MULTIPLICATIONS_MS = "300"
+$env:TIME_DIVISIONS_MS = "400"
 
-   ```sh
-   go run cmd/agent/main.go
-   ```
+# Запуск оркестратора
+go run .\cmd\orchestrator\main.go
+```
 
-### Запуск с Docker
+## 3. Запуск агента:
+### Linux / macOS (bash)
+```sh
+# Указание вычислительной мощности (количество горутин) и URL оркестратора
+export COMPUTING_POWER=4
+export ORCHESTRATOR_URL=http://localhost:8080
 
-1. Соберите образы:
+# Запуск агента
+go run ./cmd/agent/main.go
+```
+### Windows (PowerShell)
+```sh
+# Указание вычислительной мощности (количество горутин) и URL оркестратора
+$env:COMPUTING_POWER = "4"
+$env:ORCHESTRATOR_URL = "http://localhost:8080"
 
-   ```sh
-   docker-compose build
-   ```
-
-2. Запустите контейнеры:
-
-   ```sh
-   docker-compose up
-   ```
-
-## Использование API
-
-Оркестратор предоставляет REST API для управления вычислениями.
+# Запуск агента
+go run .\cmd\agent\main.go
+``` 
+## Использование
 
 ### Добавление выражения
 
@@ -156,14 +172,20 @@ curl --location 'http://localhost:8080/api/v1/calculate' \
 
 ## Переменные среды
 
-- `COMPUTING_POWER` - Количество параллельных вычислений, выполняемых агентом.
-- `TASK_DELAY` - Задержка выполнения операций (имитация нагрузки).
+### Оркестратор
 
-## Лицензия
+- `PORT` - порт сервера (по умолчанию 8080)
+- `TIME_ADDITION_MS` - время сложения (мс)
+- `TIME_SUBTRACTION_MS` - время вычитания (мс)
+- `TIME_MULTIPLICATIONS_MS` - время умножения (мс)
+- `TIME_DIVISIONS_MS` - время деления (мс)
 
-Этот проект распространяется под лицензией MIT. Подробнее см. в файле [LICENSE](LICENSE).
+### Агент
+
+- `ORCHESTRATOR_URL` - URL оркестратора
+- `COMPUTING_POWER` - количество параллельных задач
+
 
 ## Автор
 
 Разработано [uncomonq](https://github.com/uncomonq).
-
