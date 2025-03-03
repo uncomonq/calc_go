@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-type Config struct {
+type OrchConfig struct {
 	Addr                string
 	TimeAddition        int
 	TimeSubtraction     int
@@ -19,7 +19,7 @@ type Config struct {
 	TimeDivisions       int
 }
 
-func ConfigFromEnv() *Config {
+func ConfigFromEnv() *OrchConfig {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -40,7 +40,7 @@ func ConfigFromEnv() *Config {
 	if td == 0 {
 		td = 100
 	}
-	return &Config{
+	return &OrchConfig{
 		Addr:                port,
 		TimeAddition:        ta,
 		TimeSubtraction:     ts,
@@ -50,7 +50,7 @@ func ConfigFromEnv() *Config {
 }
 
 type Orchestrator struct {
-	Config      *Config
+	Config      *OrchConfig
 	exprStore   map[string]*Expression
 	taskStore   map[string]*Task
 	taskQueue   []*Task

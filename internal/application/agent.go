@@ -13,12 +13,12 @@ import (
 	"github.com/uncomonq/calc_go/internal/calculation"
 )
 
-type Agent struct {
+type Agents struct {
 	ComputingPower  int
 	OrchestratorURL string
 }
 
-func NewAgent() *Agent {
+func NewAgent() *Agents {
 	cp, err := strconv.Atoi(os.Getenv("COMPUTING_POWER"))
 	if err != nil || cp < 1 {
 		cp = 1
@@ -27,13 +27,13 @@ func NewAgent() *Agent {
 	if orchestratorURL == "" {
 		orchestratorURL = "http://localhost:8080"
 	}
-	return &Agent{
+	return &Agents{
 		ComputingPower:  cp,
 		OrchestratorURL: orchestratorURL,
 	}
 }
 
-func (a *Agent) Run() {
+func (a *Agents) Run() {
 	for i := 0; i < a.ComputingPower; i++ {
 		log.Printf("Starting worker %d", i)
 		go a.worker(i)
@@ -41,7 +41,7 @@ func (a *Agent) Run() {
 	select {}
 }
 
-func (a *Agent) worker(id int) {
+func (a *Agents) worker(id int) {
 	for {
 		resp, err := http.Get(a.OrchestratorURL + "/internal/task")
 		if err != nil {

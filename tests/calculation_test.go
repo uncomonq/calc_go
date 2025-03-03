@@ -13,9 +13,9 @@ func TestCompute(t *testing.T) {
 		expected  float64
 		shouldErr bool
 	}{
-		{"+", 2, 3, 5, false},
-		{"-", 5, 3, 2, false},
-		{"*", 4, 3, 12, false},
+		{"+", 10, 5, 15, false},
+		{"-", 52, 10, 42, false},
+		{"*", 6, 8, 48, false},
 		{"/", 10, 2, 5, false},
 		{"/", 10, 0, 0, true},
 		{"^", 2, 3, 0, true},

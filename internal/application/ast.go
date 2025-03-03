@@ -20,7 +20,7 @@ func ParseAST(expression string) (*ASTNode, error) {
 	if expr == "" {
 		return nil, fmt.Errorf("empty expression")
 	}
-	p := &parser{input: expr, pos: 0}
+	p := &astparser{input: expr, pos: 0}
 	node, err := p.parseExpression()
 	if err != nil {
 		return nil, err
@@ -31,25 +31,25 @@ func ParseAST(expression string) (*ASTNode, error) {
 	return node, nil
 }
 
-type parser struct {
+type astparser struct {
 	input string
 	pos   int
 }
 
-func (p *parser) peek() rune {
+func (p *astparser) peek() rune {
 	if p.pos < len(p.input) {
 		return rune(p.input[p.pos])
 	}
 	return 0
 }
 
-func (p *parser) get() rune {
+func (p *astparser) get() rune {
 	ch := p.peek()
 	p.pos++
 	return ch
 }
 
-func (p *parser) parseExpression() (*ASTNode, error) {
+func (p *astparser) parseExpression() (*ASTNode, error) {
 	node, err := p.parseTerm()
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (p *parser) parseExpression() (*ASTNode, error) {
 	return node, nil
 }
 
-func (p *parser) parseTerm() (*ASTNode, error) {
+func (p *astparser) parseTerm() (*ASTNode, error) {
 	node, err := p.parseFactor()
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func (p *parser) parseTerm() (*ASTNode, error) {
 	return node, nil
 }
 
-func (p *parser) parseFactor() (*ASTNode, error) {
+func (p *astparser) parseFactor() (*ASTNode, error) {
 	ch := p.peek()
 	if ch == '(' {
 		p.get()
