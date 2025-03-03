@@ -29,7 +29,7 @@ CalcGo - это система распределенных вычислений
 ## 1. Клонируйте репозиторий:
 
    ```sh
-   git clone https://github.com/uncomonq/calc_go.git
+   git clone https://github.com/uncomonq/calc_go
    cd calc_go
    ```
 
